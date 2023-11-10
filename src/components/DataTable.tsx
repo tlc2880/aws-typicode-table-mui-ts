@@ -1,12 +1,12 @@
-import React, { 
-  MouseEvent, 
+import {  
   useEffect, 
-  useState 
+  useState, 
+  MouseEvent,
+  ChangeEvent
 } from 'react';
 import axios from "axios";
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
-import TableSortLabel from "@mui/material/TableSortLabel";
 import Table from '@mui/material/Table';
 import Collapse from "@mui/material/Collapse";
 import TableBody from '@mui/material/TableBody';
@@ -31,7 +31,7 @@ interface TablePaginationActionsProps {
   page: number;
   rowsPerPage: number;
   onPageChange: (
-    event: React.MouseEvent<HTMLButtonElement>,
+    event: MouseEvent<HTMLButtonElement>,
     newPage: number,
   ) => void;
 }
@@ -43,6 +43,12 @@ type addressType = {
   zipcode: number
 }
 
+type companyType = {
+  name: string,
+  catchPhrase: string,
+  bs: string
+}
+
 type userType = {
   id: number,
   name: string, 
@@ -51,6 +57,7 @@ type userType = {
   address: addressType
   phone: string, 
   website: string,
+  company: companyType
 }
 
 function TablePaginationActions(props: TablePaginationActionsProps) {
@@ -58,20 +65,20 @@ function TablePaginationActions(props: TablePaginationActionsProps) {
   const { count, page, rowsPerPage, onPageChange } = props;
 
   const handleFirstPageButtonClick = (
-    event: React.MouseEvent<HTMLButtonElement>,
+    event: MouseEvent<HTMLButtonElement>,
   ) => {
     onPageChange(event, 0);
   };
 
-  const handleBackButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleBackButtonClick = (event: MouseEvent<HTMLButtonElement>) => {
     onPageChange(event, page - 1);
   };
 
-  const handleNextButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleNextButtonClick = (event: MouseEvent<HTMLButtonElement>) => {
     onPageChange(event, page + 1);
   };
 
-  const handleLastPageButtonClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleLastPageButtonClick = (event: MouseEvent<HTMLButtonElement>) => {
     onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
   };
 
@@ -117,6 +124,7 @@ function createData(
   address: addressType,
   phone: string, 
   website: string,
+  company: companyType
   ) {
     return {
       id,
@@ -126,37 +134,49 @@ function createData(
       address,
       phone, 
       website,
+      company
   };
 }
 
 function Row(props: { row: ReturnType<typeof createData> }) {
   const { row } = props;
-  const [open1, setOpen1] = React.useState(false);
+  const [openAddress, setOpenAddress] = useState(false);
+  const [openCompany, setOpenCompany] = useState(false);
 
   return (
-    <React.Fragment>
+    <>
       <TableRow sx={{ "& > *": { borderBottom: "unset" } }}>
+
         <TableCell component="th" scope="row">
           {row.id}
         </TableCell>
-        <TableCell align="right" style={{ width: 200 }}>{row.name}</TableCell>
-        <TableCell align="right" style={{ width: 200 }}>{row.username}</TableCell>
-        <TableCell align="right" style={{ width: 200 }}>{row.email}</TableCell>
+        <TableCell align="right" style={{ width: 225 }}>{row.name}</TableCell>
+        <TableCell align="right" style={{ width: 225 }}>{row.username}</TableCell>
+        <TableCell align="right" style={{ width: 225 }}>{row.email}</TableCell>
         <TableCell align="right" style={{ width: 75 }}>
           <IconButton
             aria-label="expand row"
             size="small"
-            onClick={() => setOpen1(!open1)}
+            onClick={() => setOpenAddress(!openAddress)}
           >
-            {open1 ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            {openAddress ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
           </IconButton>
         </TableCell>
-        <TableCell align="right" style={{ width: 200 }}>{row.phone}</TableCell>
-        <TableCell align="right" style={{ width: 200 }}>{row.website}</TableCell>
+        <TableCell align="right" style={{ width: 225 }}>{row.phone}</TableCell>
+        <TableCell align="right" style={{ width: 225 }}>{row.website}</TableCell>
+        <TableCell align="right" style={{ width: 75 }}>
+          <IconButton
+            aria-label="expand row"
+            size="small"
+            onClick={() => setOpenCompany(!openCompany)}
+          >
+            {openCompany ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
       </TableRow>
       <TableRow>
         <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-          <Collapse in={open1} timeout="auto" unmountOnExit>
+          <Collapse in={openAddress} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
               <Typography variant="h6" gutterBottom component="div">
                 Address
@@ -171,8 +191,6 @@ function Row(props: { row: ReturnType<typeof createData> }) {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {/* {row.history.map((historyRow) => (
-                    <TableRow key={historyRow.date}> */}
                   <TableRow>
                     <TableCell component="th" scope="row">
                       {row.address.street}
@@ -187,14 +205,46 @@ function Row(props: { row: ReturnType<typeof createData> }) {
           </Collapse>
         </TableCell>
       </TableRow>
-    </React.Fragment>
+
+
+      <TableRow>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+          <Collapse in={openCompany} timeout="auto" unmountOnExit>
+            <Box sx={{ margin: 1 }}>
+              <Typography variant="h6" gutterBottom component="div">
+                Company
+              </Typography>
+              <Table size="small" aria-label="purchases">
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Name</TableCell>
+                    <TableCell align="right">Catch Phrase</TableCell>
+                    <TableCell align="right">BS</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  <TableRow>
+                    <TableCell component="th" scope="row">
+                      {row.company.name}
+                    </TableCell>
+                    <TableCell align="right">{row.company.catchPhrase}</TableCell>
+                    <TableCell align="right">{row.company.bs}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </Box>
+          </Collapse>
+        </TableCell>
+      </TableRow>
+
+    </>
   );
 }
 
 export default function DataTable() {
-  const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(3);
-  const [rows, setRows] = useState<userType[]>([]);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(3);
+ const [rows, setRows] = useState([]);
 
   useEffect(() => {
     axios
@@ -205,7 +255,7 @@ export default function DataTable() {
       .catch((error) => {
         console.log(error);
       });
-  }, []);
+  }, [rows]);
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -220,33 +270,10 @@ export default function DataTable() {
   };
 
   const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
-  };
-
-  type orderType = "asc" | "desc";
-
-  const [orderDirection, setOrderDirection] = React.useState<orderType>("asc");
-
-  const sortArray = (arr: userType[], orderBy: orderType) => {
-    switch (orderBy) {
-      case "asc":
-      default:
-        return arr.sort((a: userType, b: userType) =>
-          a.id > b.id ? 1 : b.id > a.id ? -1 : 0
-        );
-      case "desc":
-        return arr.sort((a: userType, b: userType) =>
-          a.id < b.id ? 1 : b.id < a.id ? -1 : 0
-        );
-    }
-  };
-
-  const handleSortRequest = () => {
-    setRows(sortArray(rows, orderDirection));
-    setOrderDirection(orderDirection === "asc" ? "desc" : "asc");
   };
 
   return (
@@ -254,17 +281,14 @@ export default function DataTable() {
       <Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
         <TableHead>
           <TableRow>
-            <TableCell align="center" onClick={handleSortRequest}>
-              <TableSortLabel active={true} direction={orderDirection}>
-                Id
-              </TableSortLabel>
-            </TableCell>
+            <TableCell>Id</TableCell>
             <TableCell align="right">Name</TableCell>
             <TableCell align="right">Username</TableCell>
             <TableCell align="right">Email</TableCell>
             <TableCell align="right">Address</TableCell>
             <TableCell align="right">Phone</TableCell>
             <TableCell align="right">Website</TableCell>
+            <TableCell align="right">Company</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -284,7 +308,7 @@ export default function DataTable() {
           <TableRow>
             <TablePagination
               rowsPerPageOptions={[3, 6, 9, { label: 'All', value: -1 }]}
-              colSpan={7}
+              colSpan={8}
               count={rows.length}
               rowsPerPage={rowsPerPage}
               page={page}
