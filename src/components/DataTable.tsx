@@ -1,84 +1,7 @@
-// import { useEffect, useState } from "react";
-// import Table from "@mui/material/Table";
-// import TableBody from "@mui/material/TableBody";
-// import TableCell from "@mui/material/TableCell";
-// import TableContainer from "@mui/material/TableContainer";
-// import TableHead from "@mui/material/TableHead";
-// import TableRow from "@mui/material/TableRow";
-// import Paper from "@mui/material/Paper";
-
-// import axios from "axios";
-
-// type userType = {
-//   id: number,
-//   name: string, 
-//   username: string, 
-//   email: string, 
-//   phone: string, 
-//   website: string
-// }
-// // function createData(
-// //   id: number,
-// //   name: string, 
-// //   username: string, 
-// //   email: string, 
-// //   phone: string, 
-// //   website: string
-// //   ) {
-// //   return { id, name, username, email, phone, website };
-// // }
-
-// // const rows = [];
-
-// export default function DynamicTable() {
-//   const [rows, setRows] = useState([]);
-
-//   useEffect(() => {
-//     axios
-//       .get("https://jsonplaceholder.typicode.com/users")
-//       .then((res) => {
-//         setRows(res.data);
-//       })
-//       .catch((error) => {
-//         console.log(error);
-//       });
-//   }, [rows]);
-
-//   return (
-//     <TableContainer component={Paper}>
-//       <Table aria-label="simple table" stickyHeader>
-//         <TableHead>
-//           <TableRow>
-//             <TableCell>Name</TableCell>
-//             <TableCell align="right">Username</TableCell>
-//             <TableCell align="right">Email</TableCell>
-//             <TableCell align="right">Phone</TableCell>
-//             <TableCell align="right">Website</TableCell>
-//           </TableRow>
-//         </TableHead>
-//         <TableBody>
-//           {rows.map((row: userType) => (
-//             <TableRow key={row.id}>
-//               <TableCell component="th" scope="row">
-//                 {row.name}
-//               </TableCell>
-//               <TableCell align="right">{row.username}</TableCell>
-//               <TableCell align="right">{row.email}</TableCell>
-//               <TableCell align="right">{row.phone}</TableCell>
-//               <TableCell align="right">{row.website}</TableCell>
-//             </TableRow>
-//           ))}
-//         </TableBody>
-//       </Table>
-//     </TableContainer>
-//   );
-// }
-////////////////////////////////////////////////////////////
-
 import React, { 
   MouseEvent, 
- useEffect, 
- useState 
+  useEffect, 
+  useState 
 } from 'react';
 import axios from "axios";
 import { useTheme } from '@mui/material/styles';
@@ -108,13 +31,28 @@ interface TablePaginationActionsProps {
   ) => void;
 }
 
+type addressType = {
+  street: string,
+  suite: string,
+  city: string,
+  zipcode: number
+}
+
+type companyType = {
+  name: string,
+  catchPhrase: string,
+  bs: string
+}
+
 type userType = {
   id: number,
   name: string, 
   username: string, 
-  email: string, 
+  email: string
+  address: addressType, 
   phone: string, 
-  website: string
+  website: string,
+  company: companyType
 }
 
 function TablePaginationActions(props: TablePaginationActionsProps) {
@@ -173,26 +111,6 @@ function TablePaginationActions(props: TablePaginationActionsProps) {
   );
 }
 
-// function createData(name: string, calories: string, fat: string) {
-//   return { name, calories, fat };
-// }
-
-// const rows = [
-//   createData("Leanne Graham", "Bret", "Sincere@april.biz"),
-//   createData("Ervin Howell", "Antonette",  "Shanna@melissa.tv"),
-//   createData("Clementine Bauch", "Samantha", "Nathan@yesenia.net"),
-//   createData("Patricia Lebsack", "Karianne", "Julianne.OConner@kory.org"),
-//   createData("Chelsey Dietrich", "Kamren", "Lucio_Hettinger@annie.ca"),
-//   createData( "Mrs. Dennis Schulist", "Leopoldo_Corkery", "Karley_Dach@jasper.info"),
-//   createData("Kurtis Weissnat", "Elwyn.Skiles", "Telly.Hoeger@billy.biz"),
-//   createData("Nicholas Runolfsdottir V", "Maxime_Nienow", "Sherwood@rosamond.me"),
-//   createData("Glenna Reichert", "Delphine", "Chaim_McDermott@dana.io"),
-//   createData("Clementina DuBuque", "Moriah.Stanton", "Rey.Padberg@karina.biz"),
-//   // createData('Marshmallow', 318, 0),
-//   // createData('Nougat', 360, 19.0),
-//   // createData('Oreo', 437, 18.0),
-// ].sort((a, b) => (a.calories < b.calories ? -1 : 1));
-
 export default function DataTable() {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(3);
@@ -233,9 +151,14 @@ export default function DataTable() {
       <Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
         <TableHead>
           <TableRow>
-            <TableCell>Name</TableCell>
+            <TableCell>Id</TableCell>
+            <TableCell align="right">Name</TableCell>
             <TableCell align="right">Username</TableCell>
             <TableCell align="right">Email</TableCell>
+            <TableCell align="right">Address</TableCell>
+            <TableCell align="right">Phone</TableCell>
+            <TableCell align="right">Website</TableCell>
+            <TableCell align="right">Company</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -243,15 +166,30 @@ export default function DataTable() {
             ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
             : rows
           ).map((row: userType) => (
-            <TableRow key={row.name}>
+            <TableRow key={row.id}>
               <TableCell component="th" scope="row">
-                {row.name}
+                {row.id}
               </TableCell>
-              <TableCell style={{ width: 160 }} align="right">
+              <TableCell style={{ width: 200 }} align="right">
+                {row.name}
+              </TableCell>             
+              <TableCell style={{ width: 200 }} align="right">
                 {row.username}
               </TableCell>
-              <TableCell style={{ width: 160 }} align="right">
+              <TableCell style={{ width: 200 }} align="right">
                 {row.email}
+              </TableCell>
+              <TableCell style={{ width: 200 }} align="right">
+                {row.address.street}
+              </TableCell>
+              <TableCell style={{ width: 200 }} align="right">
+                {row.phone}
+              </TableCell>
+              <TableCell style={{ width: 200 }} align="right">
+                {row.website}
+              </TableCell>
+              <TableCell style={{ width: 200 }} align="right">
+                {row.company.name}
               </TableCell>
             </TableRow>
           ))}
@@ -265,7 +203,7 @@ export default function DataTable() {
           <TableRow>
             <TablePagination
               rowsPerPageOptions={[3, 6, 9, { label: 'All', value: -1 }]}
-              colSpan={3}
+              colSpan={8}
               count={rows.length}
               rowsPerPage={rowsPerPage}
               page={page}
