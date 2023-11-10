@@ -12,6 +12,7 @@ import Collapse from "@mui/material/Collapse";
 import TableBody from '@mui/material/TableBody';
 import TableHead from "@mui/material/TableHead";
 import TableCell from '@mui/material/TableCell';
+import TableSortLabel from "@mui/material/TableSortLabel";
 import TableContainer from '@mui/material/TableContainer';
 import TableFooter from '@mui/material/TableFooter';
 import TablePagination from '@mui/material/TablePagination';
@@ -244,7 +245,7 @@ function Row(props: { row: ReturnType<typeof createData> }) {
 export default function DataTable() {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(3);
- const [rows, setRows] = useState([]);
+  const [rows, setRows] = useState<userType[]>([]);
 
   useEffect(() => {
     axios
@@ -255,7 +256,7 @@ export default function DataTable() {
       .catch((error) => {
         console.log(error);
       });
-  }, [rows]);
+  }, []);
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -276,12 +277,39 @@ export default function DataTable() {
     setPage(0);
   };
 
+  type orderType = "asc" | "desc";
+
+  const [orderDirection, setOrderDirection] = useState<orderType>("asc");
+
+  const sortArray = (arr: userType[], orderBy: orderType) => {
+    switch (orderBy) {
+      case "asc":
+      default:
+        return arr.sort((a: userType, b: userType) =>
+          a.id > b.id ? 1 : b.id > a.id ? -1 : 0
+        );
+      case "desc":
+        return arr.sort((a: userType, b: userType) =>
+          a.id < b.id ? 1 : b.id < a.id ? -1 : 0
+        );
+    }
+  };
+
+  const handleSortRequest = () => {
+    setRows(sortArray(rows, orderDirection));
+    setOrderDirection(orderDirection === "asc" ? "desc" : "asc");
+  };
+
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 500 }} aria-label="custom pagination table">
         <TableHead>
           <TableRow>
-            <TableCell>Id</TableCell>
+          <TableCell align="left" onClick={handleSortRequest}>
+              <TableSortLabel active={true} direction={orderDirection}>
+                Id
+              </TableSortLabel>
+            </TableCell>
             <TableCell align="right">Name</TableCell>
             <TableCell align="right">Username</TableCell>
             <TableCell align="right">Email</TableCell>
