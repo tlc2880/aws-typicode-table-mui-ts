@@ -39,7 +39,7 @@ export default function DataTable() {
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
   const handleChangePage = (
-    // @ts-ignore
+  
     event: MouseEvent<HTMLButtonElement> | null,
     newPage: number,
   ) => {
